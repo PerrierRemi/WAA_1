@@ -160,8 +160,8 @@ const actors = [{
 
 // STEP 1
 
-// Input: Rental
-// output: Location duration in days
+// Input: Rental.
+// Output: Location duration in days.
 function locationDuration(location)
 {
   var start = Date.parse(location.pickupDate)
@@ -169,107 +169,105 @@ function locationDuration(location)
   // ms
   var diff = end - start
   var days = diff / (24 * 60 * 60 * 1000 )
-  // If the location start and finish the same day it's still count as a whole day
+  // If the location start and finish the same day it's still count as a whole day.
   days = Math.round(days + 1)
   return days
 }
 
-// Compute price for evrey rental in rentals
-function calculatePrice()
+// Compute price for evrey rental in rentals.
+function calculatePrice(rental)
 {
-  for(var rental of rentals)
+  // We search the car used.
+  for(var car of cars)
   {
-    // For each rental we search the car use
-    for(var car of cars)
+    // It's the car used !
+    if(rental.carId == car.id)
     {
-      // It's the car use !
-      if(rental.carId == car.id)
-      {
-        // Compute price and update rentals
-        rental.price = locationDuration(rental)*car.pricePerDay + rental.distance*car.pricePerKm
-      }
+      // Compute price and update rentals.
+      rental.price = locationDuration(rental)*car.pricePerDay + rental.distance*car.pricePerKm
     }
   }
 }
 
 // STEP 2
 
-// Apply reduction for longer rentals
-function applyReduction()
-{
-  for(var rental of rentals)
+// Apply reduction for longer rentals.
+function applyReduction(rental)
+{ 
+  var duration = locationDuration(rental)
+  // 10% for location of 2-4 days included.
+  if(duration >= 2 && duration <= 4)
   {
-    var duration = locationDuration(rental)
-    // 10% for location of 2, 3 or 4 days
-    if(duration >= 2 && duration <= 4)
-    {
-      rental.price *= 0.9
-    }
-    // 30% for location of 5-10 days included.
-    else if (duration >= 5 && duration <= 10)
-    {
-      rental.price *= 0.7
-    }
-    // 50% for a location of 11 or more days.
-    else
-    {
-      rental.price *= 0.5
-    }
+    rental.price *= 0.9
   }
+  // 30% for location of 5-10 days included.
+  else if (duration >= 5 && duration <= 10)
+  {
+    rental.price *= 0.7
+  }
+  // 50% for a location of 11 or more days.
+  else
+  {
+    rental.price *= 0.5
+  }  
 }
 
 // STEP 3 
 
-// Compute actors' commission
-function payCommission()
+// Compute actors' commission.
+function payCommission(rental)
 {
-  for(var rental of rentals)
-  {
-    // Commission is set to 30% of price
-    var commission = 0.3*rental.price 
-    // Half of commission go to the insurance
-    rental.commission.insurance = + ( 0.5*commission ).toFixed(2)
-    // The treasury get 1€ by location day
-    rental.commission.treasury = locationDuration(rental)
-    // Virtuo get all rest
-    rental.commission.virtuo = + ( commission - rental.commission.insurance - rental.commission.treasury ).toFixed(2)
-  }
+  // Commission is set to 30% of price.
+  var commission = 0.3*rental.price 
+  // Half of commission go to the insurance.
+  rental.commission.insurance = + ( 0.5*commission ).toFixed(2)
+  // The treasury get 1€ by location day.
+  rental.commission.treasury = locationDuration(rental)
+  // Virtuo get all rest.
+  rental.commission.virtuo = + ( commission - rental.commission.insurance - rental.commission.treasury ).toFixed(2)
 }
 
 // STEP 4 
 
-// Add deductible option to price and virtuo commission
-function addDeductibleOption()
+// Add deductible option to price and virtuo commission.
+function addDeductibleOption(rental)
+{
+  if(rental.options.deductibleReduction)
+  {
+    // This option cost 4€/day.
+    var option_cost = 4 * locationDuration(rental)
+    // Location price goes up.
+    rental.price += option_cost
+    // The additional charge goes to Virtuo.
+    // We add it to the commission that goes to Virtuo.
+    rental.commission.virtuo += option_cost 
+  }
+
+}
+
+// FINAL FUNCTION
+
+// Compute location price and share it between actors
+function pricing()
 {
   for(var rental of rentals)
   {
-    if(rental.options.deductibleReduction)
-    {
-      // This option cost 4€/day
-      var option_cost = 4 * locationDuration(rental)
-      // Location price goes up
-      rental.price += option_cost
-      // The additional charge goes to Virtuo
-      // We add it to the commission that goes to Virtuo
-      rental.commission.virtuo += option_cost 
-    }
+    // /!\ Call order is really important !!
+    // Compute price
+    calculatePrice(rental)
+    // Apply reductions for longer rentals
+    applyReduction(rental)
+    // Compute commission
+    payCommission(rental)
+    // Add options
+    addDeductibleOption(rental)
   }
 }
 
-
 // MAIN
 
-// /!\ Call order is really important !!
-
-// Compute price
-calculatePrice()
-// Apply reductions for longer rentals
-applyReduction()
-// Compute commission
-payCommission()
-// Add options
-addDeductibleOption()
-
+// Compute prices
+pricing()
 // Display lists
 console.log(cars);
 console.log(rentals);
