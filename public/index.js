@@ -158,7 +158,7 @@ const actors = [{
   }]
 }];
 
-// STEP 1 
+// STEP 1
 
 // Input: Rental
 // output: Location duration in days
@@ -177,10 +177,10 @@ function locationDuration(location)
 // Compute price for evrey rental in rentals
 function calculatePrice()
 {
-  for(var rental in rentals)
+  for(var rental of rentals)
   {
     // For each rental we search the car use
-    for(var car in cars)
+    for(var car of cars)
     {
       // It's the car use !
       if(rental.carId == car.id)
@@ -192,9 +192,37 @@ function calculatePrice()
   }
 }
 
+// STEP 2
+
+// Apply reduction for longer rentals
+function reduction()
+{
+  for(var rental of rentals)
+  {
+    var duration = locationDuration(rental)
+    // 10% for location of 2, 3 or 4 days
+    if(duration >= 2 && duration <= 4)
+    {
+      rental.price *= 0.9
+    }
+    // 30% for location of 5-10 days included.
+    else if (duration >= 5 && duration <= 10)
+    {
+      rental.price *= 0.7
+    }
+    // 50% for a location of 11 or more days.
+    else
+    {
+      rental.price *= 0.5
+    }
+  }
+}
+
 // MAIN
 // Compute price
 calculatePrice()
+// Apply reductions for longer rentals
+reduction()
 // Display lists
 console.log(cars);
 console.log(rentals);
