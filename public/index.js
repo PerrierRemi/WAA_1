@@ -195,7 +195,7 @@ function calculatePrice()
 // STEP 2
 
 // Apply reduction for longer rentals
-function reduction()
+function applyReduction()
 {
   for(var rental of rentals)
   {
@@ -218,11 +218,31 @@ function reduction()
   }
 }
 
+// STEP 3 
+
+// Compute actors' commission
+function payCommission()
+{
+  for(var rental of rentals)
+  {
+    // Commission is set to 30% of price
+    var commission = 0.3*rental.price 
+    // Half of commission go to the insurance
+    rental.commission.insurance = + ( 0.5*commission ).toFixed(2)
+    // The treasury get 1€ by location day
+    rental.commission.treasury = locationDuration(rental)
+    // Virtuo get all rest
+    rental.commission.virtuo = + ( commission - rental.commission.insurance - rental.commission.treasury ).toFixed(2)
+  }
+}
+
 // MAIN
 // Compute price
 calculatePrice()
 // Apply reductions for longer rentals
-reduction()
+applyReduction()
+// Compute commission
+payCommission()
 // Display lists
 console.log(cars);
 console.log(rentals);
