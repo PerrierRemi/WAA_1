@@ -236,13 +236,40 @@ function payCommission()
   }
 }
 
+// STEP 4 
+
+// Add deductible option to price and virtuo commission
+function addDeductibleOption()
+{
+  for(var rental of rentals)
+  {
+    if(rental.options.deductibleReduction)
+    {
+      // This option cost 4€/day
+      var option_cost = 4 * locationDuration(rental)
+      // Location price goes up
+      rental.price += option_cost
+      // The additional charge goes to Virtuo
+      // We add it to the commission that goes to Virtuo
+      rental.commission.virtuo += option_cost 
+    }
+  }
+}
+
+
 // MAIN
+
+// /!\ Call order is really important !!
+
 // Compute price
 calculatePrice()
 // Apply reductions for longer rentals
 applyReduction()
 // Compute commission
 payCommission()
+// Add options
+addDeductibleOption()
+
 // Display lists
 console.log(cars);
 console.log(rentals);
