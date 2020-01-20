@@ -158,6 +158,44 @@ const actors = [{
   }]
 }];
 
+// STEP 1 
+
+// Input: Rental
+// output: Location duration in days
+function locationDuration(location)
+{
+  var start = Date.parse(location.pickupDate)
+  var end = Date.parse(location.returnDate)
+  // ms
+  var diff = end - start
+  var days = diff / (24 * 60 * 60 * 1000 )
+  // If the location start and finish the same day it's still count as a whole day
+  days = Math.round(days + 1)
+  return days
+}
+
+// Compute price for evrey rental in rentals
+function calculatePrice()
+{
+  for(var rental in rentals)
+  {
+    // For each rental we search the car use
+    for(var car in cars)
+    {
+      // It's the car use !
+      if(rental.carId == car.id)
+      {
+        // Compute price and update rentals
+        rental.price = locationDuration(rental)*car.pricePerDay + rental.distance*car.pricePerKm
+      }
+    }
+  }
+}
+
+// MAIN
+// Compute price
+calculatePrice()
+// Display lists
 console.log(cars);
 console.log(rentals);
 console.log(actors);
