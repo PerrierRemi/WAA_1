@@ -245,6 +245,40 @@ function addDeductibleOption(rental)
 
 }
 
+// STEP 5
+
+// Pays the actor
+function payActors(rental)
+{
+  // We search teh actors link to this rental
+  for(var actorsOfThisRental of actors)
+  {
+    // There are the good actors !
+    if(actorsOfThisRental.rentalId == rental.id)
+    {
+      // For every actor
+      for(var actor of actorsOfThisRental.payment)
+      {
+        // The driver pays the the rental price and the deductible reduction (included in rental price)
+        if(actor.who == "driver")
+        {
+          actor.amount = rental.price
+        }
+        // The partner get the rental price minus the commission
+        else if(actor.who == "partner")
+        {
+          actor.amount = rental.price - rental.commission.treasury - rental.commission.insurance - rental.commission.virtuo
+        }
+        // Every actors get their commission, the commission included all bonus
+        else
+        {
+          actor.amount   = rental.commission[actor.who]
+        }
+      }
+    }
+  }
+}
+
 // FINAL FUNCTION
 
 // Compute location price and share it between actors
@@ -261,6 +295,8 @@ function pricing()
     payCommission(rental)
     // Add options
     addDeductibleOption(rental)
+    // Pay actors
+    payActors(rental)
   }
 }
 
